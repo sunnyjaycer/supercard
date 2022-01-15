@@ -7,6 +7,10 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
     padding: '20px',
     borderRadius: '15px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    width: '100%',
   },
 }));
 
@@ -17,7 +21,7 @@ const BalanceCard = () => {
     <Card className={classes.root}>
       <Grid container direction='column'>
         <Grid item xs={12}>
-          <Typography variant='h6'>Balance</Typography>
+          <Typography variant='h5'>Balance</Typography>
           <Typography variant='h3'>
             <strong>$5000</strong>
           </Typography>

@@ -33,6 +33,13 @@ const useStyles = makeStyles((theme) => ({
   iconRoot: {
     textAlign: 'center',
   },
+  showMenuButtons: {
+    //Hiding the buttons (Main page, docs, etc.)
+    //Later going to add an iconbutton with dropdown that shows when it gets small enough
+    ['@media screen and (max-width: 650px)']: {
+      display: 'none !important',
+    },
+  },
 }));
 
 const AppBarHeader = () => {
@@ -72,6 +79,7 @@ const AppBarHeader = () => {
               padding: '0px',
               marginRight: '15px',
             }}
+            className={classes.showMenuButtons}
           >
             <Button>Main Screen</Button>
             <Button>Docs</Button>

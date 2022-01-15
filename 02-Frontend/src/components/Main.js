@@ -5,6 +5,9 @@ import { useTheme } from '@material-ui/core/styles';
 
 import BalanceCard from './Main/BalanceCard';
 import CardImage from './Main/CardImage';
+import YourSupercards from './Main/YourSupercards';
+import NetFlowCard from './Main/NetFlowCard';
+import ActivityCard from './Main/ActivityCard';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,6 +28,12 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing.unit * 2,
     textAlign: 'center',
   },
+  mainDiv: {
+    marginLeft: '10%',
+    marginRight: '10%',
+    marginTop: '80px',
+    marginBottom: '100px',
+  },
 }));
 
 const Main = () => {
@@ -32,39 +41,36 @@ const Main = () => {
   const theme = useTheme();
 
   return (
-    <div style={{ margin: '100px' }}>
+    <div className={classes.mainDiv}>
       <Grid //Our master grid
         container
         direction='row'
-        justifyContent='center'
-        alignItems='center'
         spacing={3}
       >
-        <Grid container item md={8} xs={12} spacing={2}>
-          <Grid item md={6} xs={12}>
+        <Grid container item md={8} xs={12} spacing={2} alignItems='stretch'>
+          <Grid item md={6} xs={12} style={{ display: 'flex' }}>
             <CardImage />
           </Grid>
-          <Grid item md={6} xs={12}>
+          <Grid item md={6} xs={12} style={{ display: 'flex' }}>
             <BalanceCard />
           </Grid>
 
-          <Grid item md={6} xs={12}>
-            <Card className={classes.card}>
-              <Typography variant='h6'>Your Supercards (to do)</Typography>
-            </Card>
+          <Grid item md={6} xs={12} style={{ display: 'flex' }}>
+            <YourSupercards />
           </Grid>
-          <Grid item md={6} xs={12}>
-            <Card className={classes.card}>
-              <Typography variant='h6'>
-                Monthly Net Flow Card (to do)
-              </Typography>
-            </Card>
+          <Grid item md={6} xs={12} style={{ display: 'flex' }}>
+            <NetFlowCard />
           </Grid>
         </Grid>
-        <Grid item md={4} xs={12} spacing={2}>
-          <Card className={classes.card}>
-            <Typography variant='h6'>Transactions (to do)</Typography>
-          </Card>
+        <Grid
+          container
+          item
+          md={4}
+          xs={12}
+          spacing={2}
+          style={{ display: 'flex' }}
+        >
+          <ActivityCard />
         </Grid>
       </Grid>
     </div>
