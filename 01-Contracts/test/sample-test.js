@@ -203,10 +203,12 @@ describe("TradeableFlow", function () {
       await upgrade([alice],token_directory["fUSDC"]["supertoken"]);
 
       // Give App a little USDCx so it doesn't get mad over deposit allowance
-      await token_directory["fUSDC"]["supertoken"].transfer(user_directory.app, 100000000000000, {from:alice});
+      await token_directory["fUSDC"]["supertoken"].transfer(user_directory.app, toWad(100), {from:alice});
 
-      // Alice tosses 100,000 usdc into app for lending
+      // Alice tosses 100,000 usdc into app for lending and gives some to her friends
       await usdc.transfer(app.address,toWad(1000000),{from:alice});
+      await usdc.transfer(bob,toWad(10000),{from:alice});
+      await usdc.transfer(carol,toWad(10000),{from:alice});
 
       // Admin registers Alice as employer
       await app.changeEmployerRegistration(alice, {from:admin});
@@ -224,8 +226,8 @@ describe("TradeableFlow", function () {
       console.log("Metadata URL:",await app.tokenURI(1));
       console.log()
 
-      // Alice starts paying Bob
-      console.log("Alice starts paying Bob")
+      // Alice starts paying token 1
+      console.log("Alice starts paying Bob through token ID 1")
       await sf.cfa.createFlow({
         superToken:   token_directory["fUSDC"]["supertoken"].address, 
         sender:       alice,
@@ -237,7 +239,7 @@ describe("TradeableFlow", function () {
       await logUsers(userList)
 
       // Bob opens LOC and borrows 1k
-      console.log("Bob opens an LOC")
+      console.log("Bob opens an LOC of 1000 USDC")
       await app.openLoc({from:bob})
       await app.borrow(toWad(1000), {from:bob})
 
@@ -248,16 +250,48 @@ describe("TradeableFlow", function () {
       await app.transferFrom(bob,carol,1,{from:bob});
       await logUsers(userList)
 
+      // Carol repays the 1k loan
+      console.log("Carol repays the 1000 USDC loan")
+      await usdc.approve(app.address,toWad(1000),{from:carol});
+      await app.repay(toWad(1000), {from:carol})
+      await logUsers(userList)
+
+    //   // Alice doubles salary flow
+    //   console.log("Alice doubles salary flow")
+    //   await sf.cfa.updateFlow({
+    //     superToken:   token_directory["fUSDC"]["supertoken"].address, 
+    //     sender:       alice,
+    //     receiver:     user_directory.app,
+    //     flowRate:     parseInt(toWad(10000)/(30 * 24 * 60 * 60)).toString(),
+    //     userData:     web3.eth.abi.encodeParameter('uint256',1)
+    //   });
+    //   await logUsers(userList)
+
+      // Alice cancels flow to 
+      console.log("Alice cancels salary flow")
+      await sf.cfa.deleteFlow({
+        superToken:   token_directory["fUSDC"]["supertoken"].address, 
+        sender:       alice,
+        receiver:     user_directory.app,
+        by:           alice
+      });
+      await logUsers(userList)
+
     });
-    // 1. Employer must have been registered by SuperCard program owner
-
-    // 2. Employer must have registerEmployee()
-    // 3. Registered employee must have minted SuperCard
-    // Now employer may start paying employee
-
-
 
   });
 
+//   Nonce
+//   10
+//   Amount
+//   -0 ETH
+//   Gas Limit (Units)
+//   29500000
+//   Total Gas Fee
+//   0
+//   ETH
+//   Max Fee Per Gas
+//   0.000000002
+//   ETH
 
 })

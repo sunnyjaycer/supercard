@@ -18,10 +18,9 @@ async function main() {
   const TradeableFlow = await hre.ethers.getContractFactory("TradeableFlow");
   const tradeableflow = await TradeableFlow.deploy(
     "0xc41876DAB61De145093b6aA87417326B24Ae4ECD",
-    "TradeableFlow",
-    "TF",
+    "SuperCard",
+    "SC",
     "ipfs://",                                            // Base URI
-    "QmaQCJ5YoP1g48FtrwpUjFfL3nmVVeWVxrNMWkAsRpvjFt",     // CID
     "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8",         // payment token
     "0xbe49ac1EadAc65dccf204D4Df81d650B50122aB2",         // lending token
     130000,                                               // Interest rate (130,000 = 30%)
@@ -48,5 +47,13 @@ main().catch((error) => {
 // fake UWL: 0xbDfb61f061250a1f6A9e184B7B0EE8d7d4f83cfC
 // second latest DEPLOYED_CONTRACT_ADDRESS: 0x25e69bf13d58b2e166Da273Bba1af03a99F98707
 // latest: 0x603c02f90299A49c009411419c392FE49a6B6096
-// npx hardhat verify --network rinkeby --constructor-args arguments.js 0x45DC036073F12433BfC13380DD70a8a6c4B2d32f
+// npx hardhat verify --network rinkeby --constructor-args arguments.js 0x38E975A42e3DfEEa6cAA9672a6Fbb3C4bdbb97a3
 // https://hardhat.org/tutorial/deploying-to-a-live-network.html
+
+// Testing Steps
+// Pre. Set CID
+// 1. Register an employer
+// 2. As the employer, register an employee
+// 3. As the employee, mint a SuperCard
+// 4. As the employer, start a stream with the SuperCard token ID
+// 

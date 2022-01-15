@@ -2,9 +2,9 @@ const { web3tx, toWad, wad4human } = require("@decentral.ee/web3-helpers");
 
 module.exports = [
     "0xc41876DAB61De145093b6aA87417326B24Ae4ECD",
-    "TradeableFlow",
-    "TF",
-    "base-link",                                          // Base URI
+    "SuperCard",
+    "SC",
+    "ipfs://",                                            // Base URI
     "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8",         // payment token
     "0xbe49ac1EadAc65dccf204D4Df81d650B50122aB2",         // lending token
     130000,                                               // Interest rate (130,000 = 30%)

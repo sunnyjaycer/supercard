@@ -27,13 +27,13 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
     string public baseURI;
     string public cid;
 
+    event LOCOpened(address employee);
 
     constructor (
         address _owner,
         string memory _name,
         string memory _symbol,
         string memory _baseURI,
-        // string memory _cid,
         ISuperToken _paymentToken,
         IERC20 _lendingToken,              // Stablecoin that will be lent out on LOCs
         int96 _interestRate,               // Number between 100 and 200, so 30% APR is 130
@@ -62,6 +62,8 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
     function mint() public returns (uint256 tokenId) {
         // require employer registered the employee under them
         require(_scp.employees[msg.sender].employer != address(0), "!employed");
+        // require employee doesn't already have a card
+        require(_scp.employees[msg.sender].tokenId == 0, "alreadyHasCard");
 
         // Increment token ID
         tokenIds.increment();
@@ -98,11 +100,14 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
         
         _scp.employees[msg.sender].locOpen = true;
         _scp.employees[msg.sender].availableCredit = _scp.locAmount;
+
+        emit LOCOpened(msg.sender);
     }
 
     function closeLoc() public {
-        require(_scp.employees[msg.sender].availableCredit)
-
+        require(_scp.employees[msg.sender].availableCredit == _scp.locAmount, "stillOutstandingBal");
+        _scp.employees[msg.sender].locOpen = false;
+        _scp.employees[msg.sender].availableCredit = 0;
     }
 
     function changeEmployerRegistration(address employer) public {
@@ -114,9 +119,12 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
     
     // lets an employer sets an employee under him
     function registerEmployee(address employee) public {
+        // block another employer from registering an already registered employee
         require(_scp.employers[msg.sender].authorized,"!registeredEmployer");
         // Sets employee to active in EmployerProfile
         _scp.employers[msg.sender].activeEmployees[employee] = true;
+        // Push new employee to list
+        _scp.employers[msg.sender].employeeList.push(employee);
         // Sets employer in EmployeeProfile
         _scp.employees[employee].employer = msg.sender;
 
@@ -133,18 +141,27 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
         // Caller must have an imcome coming through
         require(_scp.employees[msg.sender].incomeInflowRate != 0, "!income");
         // Amount can't be greater than available LOC
-        require(borrowAmount <= _scp.locAmount, "!borrowTooMuch");
+        require(borrowAmount <= _scp.employees[msg.sender].availableCredit, "!borrowTooMuch");
 
-        // calculate repayment rate
+        // Calculate new amount of credit to be utilized
+        uint256 newUtilization = (_scp.locAmount - (_scp.employees[msg.sender].availableCredit - borrowAmount));
+        // Calculate repayment rate
         // repayment rate is such that principle will be repayed over 3 months plus interest reframed to that 3-month timeframe
-        int96 repaymentRate =  int96( ( int( uint( borrowAmount ) ) * (_scp.interestRate) / ( 100000 * 3 ) ) / ( 30 * 24 * 60 * 60 ) );
+        int96 repaymentRate =  int96( ( int( uint( newUtilization ) ) * (_scp.interestRate) / ( 100000 * 3 ) ) / ( 30 * 24 * 60 * 60 ) );
+        int96 repaymentDelta = repaymentRate - _scp.employees[msg.sender].interestOutflowRate;
+        _scp.employees[msg.sender].interestOutflowRate = repaymentRate;
 
         // modify existing flow to employee
-        (,int96 currentFlowToemployee,,) = _scp.cfa.getFlow(_scp.paymentToken, address(this), msg.sender);
-        _updateFlow(msg.sender, currentFlowToemployee - repaymentRate,_scp.paymentToken);
+        (,int96 currentFlowToEmployee,,) = _scp.cfa.getFlow(_scp.paymentToken, address(this), msg.sender);
+        _updateFlow(msg.sender, currentFlowToEmployee - repaymentDelta,_scp.paymentToken);
 
-        // Start repayment flow to program owner
-        _createFlow(_scp.owner, repaymentRate, _scp.paymentToken);
+        // Start/update repayment flow to program owner
+        (,int96 currentInterestFlow,,) = _scp.cfa.getFlow(_scp.paymentToken, address(this), _scp.owner);
+        if (currentInterestFlow == 0) {
+            _createFlow(_scp.owner, currentInterestFlow + repaymentDelta, _scp.paymentToken);
+        } else {
+            _updateFlow(_scp.owner, currentInterestFlow + repaymentDelta, _scp.paymentToken);
+        }
 
         // Borrow Amount
         IERC20(_scp.lendingToken).transfer(msg.sender, borrowAmount);
@@ -156,6 +173,43 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
     function repay(uint256 repayAmount) public {
         // Caller must be employed
         require(_scp.employees[msg.sender].employer != address(0), "!employed");
+        // not repaying too much
+        require(repayAmount <= (_scp.locAmount -_scp.employees[msg.sender].availableCredit), "!tooMuchRepay");
+
+        // Calculate new amount of credit to be utilized
+        uint256 newUtilization = (_scp.locAmount - (_scp.employees[msg.sender].availableCredit + repayAmount));
+        // Calculate repayment rate
+        // repayment rate is such that principle will be repayed over 3 months plus interest reframed to that 3-month timeframe
+        int96 repaymentRate =  int96( ( int( uint( newUtilization ) ) * (_scp.interestRate) / ( 100000 * 3 ) ) / ( 30 * 24 * 60 * 60 ) );
+        int96 repaymentDelta = repaymentRate - _scp.employees[msg.sender].interestOutflowRate;
+        _scp.employees[msg.sender].interestOutflowRate = repaymentRate;
+
+        console.logInt(repaymentRate);
+        console.logInt(repaymentDelta);
+
+        // modify existing flow to employee
+        (,int96 currentFlowToEmployee,,) = _scp.cfa.getFlow(_scp.paymentToken, address(this), msg.sender);
+        console.logInt(currentFlowToEmployee);
+        console.logInt(currentFlowToEmployee - repaymentDelta);
+        _updateFlow(msg.sender, currentFlowToEmployee - repaymentDelta,_scp.paymentToken);
+
+        // update repayment flow to program owner
+        (,int96 currentInterestFlow,,) = _scp.cfa.getFlow(_scp.paymentToken, address(this), _scp.owner);
+        // if (currentInterestFlow == 0) {
+        //     _createFlow(_scp.owner, currentInterestFlow + repaymentDelta, _scp.paymentToken);
+        // } 
+        if (currentInterestFlow + repaymentDelta != 0) {
+            _updateFlow(_scp.owner, currentInterestFlow + repaymentDelta, _scp.paymentToken);
+        }
+        else {
+            _deleteFlow(address(this), _scp.owner, _scp.paymentToken);
+        }
+
+        // Transfer in repayAmount
+        IERC20(_scp.lendingToken).transferFrom(msg.sender,address(this), repayAmount);
+        
+        // Update availableLoc amount
+        _scp.employees[msg.sender].availableCredit += repayAmount;
 
     }
 
@@ -163,9 +217,33 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
         cid = newCID;
     }
 
+    /********************************************** */
+    /* Getters                                      */
+    /********************************************** */
+
     function getTokenIdFromEmployee(address employee) public view returns (uint256) {
         return _scp.employees[employee].tokenId;
     }
+
+    function getInterestRate() external view returns (int96) {
+        return _scp.interestRate;
+    }
+
+    function getLocAmount() external view returns (uint256) {
+        return _scp.locAmount;
+    }
+
+    function getLendingToken() external view returns (IERC20) {
+        return _scp.lendingToken;
+    }
+
+    function getPaymentToken() external view returns (ISuperToken) {
+        return _scp.paymentToken;
+    }
+
+    /********************************************** */
+    /* ERC721 Overrides                             */
+    /********************************************** */
 
     /**
     @dev overriding _burn due duplication in inherited ERC721 and ERC721URIStorage

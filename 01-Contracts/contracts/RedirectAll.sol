@@ -90,14 +90,72 @@ contract RedirectAll is SuperAppBase {
 
     function _updateOutflow(ISuperToken supertoken) internal returns (bytes memory newCtx) {
         newCtx = _tcd.ctx;
-    
+        // Get employer (flow starter) from agreementData
+        (address employer, ) = abi.decode(_tcd.agreementData, (address, address));
+        // iterate across all of the employer's employees and cancel outbound streams, set employees to inactive
+        // Get user data from context (employee) - because of this, the createFlow must be done with userData specified or it will revert
+        // address employee = abi.decode(_scp.host.decodeCtx(newCtx).userData, (address));
+        uint256 tokenId = abi.decode(_scp.host.decodeCtx(newCtx).userData, (uint256));
+
+        // Get employee behind token ID
+        address employee = _scp.tokenIdToEmployee[tokenId];
+
+        // Change flow to employee by rate adjustment delta
+        (,int96 currentEmployerFlow,,) = _scp.cfa.getFlow(supertoken, employer, address(this));
+        (,int96 currentEmployeeFlow,,) = _scp.cfa.getFlow(supertoken, address(this), employee);
+        int96 rateDelta = currentEmployerFlow - _scp.employees[employee].incomeInflowRate;
+        _updateFlow(employee, currentEmployeeFlow + rateDelta,_scp.paymentToken);
+
+        _scp.employees[employee].incomeInflowRate += rateDelta;
+
     }
 
 
     function _deleteOutflow(ISuperToken supertoken) internal returns (bytes memory newCtx) {
         newCtx = _tcd.ctx;
-        // iterate across all of the employer's employees and cancel outbound streams, set employees to inactive
-    
+        // Get employer (flow starter) from agreementData
+        (address employer, ) = abi.decode(_tcd.agreementData, (address, address));
+
+
+        for (uint i=0; i<_scp.employers[employer].employeeList.length; i++) {
+            address employee = _scp.employers[employer].employeeList[i];
+            console.logAddress(employee);
+            console.logUint(i);
+            console.log(_scp.employers[employer].employeeList.length);
+            // address employee2 = _scp.employers[employer].employeeList[i+1];
+            // console.logAddress(employee2);
+            (,int96 currentFlowToEmployee,,) = _scp.cfa.getFlow(supertoken, address(this), employee);
+            console.logInt(currentFlowToEmployee);
+            if ( currentFlowToEmployee != 0 ) {
+                _deleteFlow(address(this), employee, _scp.paymentToken);
+            }
+
+            // if employee has active interest payment going on, cancel it
+            (,int96 currentTotalInterestFlow,,) = _scp.cfa.getFlow(supertoken, address(this), _scp.owner);
+            console.logInt(currentTotalInterestFlow);
+            if ( _scp.employees[employee].interestOutflowRate != 0) {
+                // If reducing by this flow brings it to zero, do a deleteFlow
+                if ( currentTotalInterestFlow - _scp.employees[employee].interestOutflowRate == 0 ) {
+                    _deleteFlow(address(this), _scp.owner, _scp.paymentToken);
+                } else {
+                    _updateFlow(_scp.owner, currentTotalInterestFlow - _scp.employees[employee].interestOutflowRate, _scp.paymentToken);
+                }
+            }
+
+            // delete each employee in employees
+            delete _scp.employees[employee];
+
+            // set employee in activeEmployees to false
+            _scp.employers[employer].activeEmployees[employee] = false;
+
+            // set employer to authorized to false
+            _scp.employers[employer].authorized = false;
+            
+        }
+
+        // delete employer from employers
+        delete _scp.employers[employer];
+
     }
 
 
@@ -107,8 +165,13 @@ contract RedirectAll is SuperAppBase {
         address employer = _scp.employees[oldEmployee].employer;
         _scp.employers[employer].activeEmployees[oldEmployee] = false;
         _scp.employers[employer].activeEmployees[newEmployee] = true;
+        // Add newEmployee to employer employeeList. The old employee will remain, but lack of flow will be accounted for in _deleteOutflow hook
+        _scp.employers[employer].employeeList.push(newEmployee);
         // make a new employee profile based on the previous one
         _scp.employees[newEmployee] = _scp.employees[oldEmployee];
+
+        
+        
         // delete the old employee profile
         delete _scp.employees[oldEmployee];
         // change tokenIdToEmployee

@@ -20,12 +20,13 @@ library TradeableFlowStorage  {
         bool locOpen;
         uint256 availableCredit;
         int96 incomeInflowRate;                          // Track how much borrowers are getting paid
-        uint256 interestOutflowRate;                       // Track how much borrower is paying in interest 
+        int96 interestOutflowRate;                       // Track how much borrower is paying in interest plus principle paydown
                                                            // Getting remaining amount needed to stream to Bob is just income less interest
     }
 
     struct EmployerProfile {
         mapping(address => bool) activeEmployees;          // Mapping of the employer's employee address to whether they're active employees
+        address[] employeeList;                            // List of employees for flow cancellation
         bool authorized;                                   // Whehter the employer has been authorized by owner or not
     }
 
@@ -49,6 +50,5 @@ library TradeableFlowStorage  {
         bytes agreementData;
         bytes ctx;
     }
-
-
+    
 }
