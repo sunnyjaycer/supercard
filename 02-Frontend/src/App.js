@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import './App.css';
 // import Web3 from 'web3';
 import axios from 'axios';
 // import SuperfluidSDK from '@superfluid-finance/js-sdk';
 // import Web3Provider from '@ethersproject/providers';
 import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
+
 import AppBarHeader from './components/AppBarHeader';
 import Main from './components/Main';
+import Docs from './components/Docs';
+import Community from './components/Community';
 
 const useStyles = makeStyles((theme) => ({}));
 
@@ -93,7 +97,6 @@ function App() {
 
   return (
     <div className='App'>
-      <AppBarHeader />
       <Main />
     </div>
   );

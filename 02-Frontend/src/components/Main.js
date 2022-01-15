@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Grid, Card, Paper, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useTheme } from '@material-ui/core/styles';
@@ -29,8 +30,8 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
   },
   mainDiv: {
-    marginLeft: '10%',
-    marginRight: '10%',
+    marginLeft: '6vw',
+    marginRight: '6vw',
     marginTop: '80px',
     marginBottom: '100px',
   },

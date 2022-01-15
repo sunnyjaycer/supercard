@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import '../App.css';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -39,6 +40,9 @@ const useStyles = makeStyles((theme) => ({
     ['@media screen and (max-width: 650px)']: {
       display: 'none !important',
     },
+  },
+  buttons: {
+    textDecoration: 'none',
   },
 }));
 
@@ -81,9 +85,15 @@ const AppBarHeader = () => {
             }}
             className={classes.showMenuButtons}
           >
-            <Button>Main Screen</Button>
-            <Button>Docs</Button>
-            <Button>Community</Button>
+            <Link to='/' className={classes.buttons}>
+              <Button>Main Screen</Button>
+            </Link>
+            <Link to='/docs' className={classes.buttons}>
+              <Button>Docs</Button>
+            </Link>
+            <Link to='/community' className={classes.buttons}>
+              <Button>Community</Button>
+            </Link>
           </ButtonGroup>
 
           <Card>
