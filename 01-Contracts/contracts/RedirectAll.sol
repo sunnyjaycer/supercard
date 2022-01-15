@@ -104,7 +104,7 @@ contract RedirectAll is SuperAppBase {
         (,int96 currentEmployerFlow,,) = _scp.cfa.getFlow(supertoken, employer, address(this));
         (,int96 currentEmployeeFlow,,) = _scp.cfa.getFlow(supertoken, address(this), employee);
         int96 rateDelta = currentEmployerFlow - _scp.employees[employee].incomeInflowRate;
-        _updateFlow(employee, currentEmployeeFlow + rateDelta,_scp.paymentToken);
+        newCtx = _updateFlow(employee, currentEmployeeFlow + rateDelta,_scp.paymentToken, newCtx);
 
         _scp.employees[employee].incomeInflowRate += rateDelta;
 
@@ -119,15 +119,11 @@ contract RedirectAll is SuperAppBase {
 
         for (uint i=0; i<_scp.employers[employer].employeeList.length; i++) {
             address employee = _scp.employers[employer].employeeList[i];
-            console.logAddress(employee);
-            console.logUint(i);
-            console.log(_scp.employers[employer].employeeList.length);
-            // address employee2 = _scp.employers[employer].employeeList[i+1];
-            // console.logAddress(employee2);
+
+            // Delete flow to employee
             (,int96 currentFlowToEmployee,,) = _scp.cfa.getFlow(supertoken, address(this), employee);
-            console.logInt(currentFlowToEmployee);
             if ( currentFlowToEmployee != 0 ) {
-                _deleteFlow(address(this), employee, _scp.paymentToken);
+                newCtx = _deleteFlow(address(this), employee, _scp.paymentToken, newCtx);
             }
 
             // if employee has active interest payment going on, cancel it
@@ -136,9 +132,9 @@ contract RedirectAll is SuperAppBase {
             if ( _scp.employees[employee].interestOutflowRate != 0) {
                 // If reducing by this flow brings it to zero, do a deleteFlow
                 if ( currentTotalInterestFlow - _scp.employees[employee].interestOutflowRate == 0 ) {
-                    _deleteFlow(address(this), _scp.owner, _scp.paymentToken);
+                    newCtx = _deleteFlow(address(this), _scp.owner, _scp.paymentToken, newCtx);
                 } else {
-                    _updateFlow(_scp.owner, currentTotalInterestFlow - _scp.employees[employee].interestOutflowRate, _scp.paymentToken);
+                    newCtx = _updateFlow(_scp.owner, currentTotalInterestFlow - _scp.employees[employee].interestOutflowRate, _scp.paymentToken, newCtx);
                 }
             }
 

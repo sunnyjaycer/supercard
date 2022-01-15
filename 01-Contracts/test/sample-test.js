@@ -239,9 +239,11 @@ describe("TradeableFlow", function () {
       await logUsers(userList)
 
       // Bob opens LOC and borrows 1k
+      console.log("USDC balance of Bob:", (await usdc.balanceOf(bob) ).toString())
       console.log("Bob opens an LOC of 1000 USDC")
       await app.openLoc({from:bob})
       await app.borrow(toWad(1000), {from:bob})
+      console.log("USDC balance of Bob:", (await usdc.balanceOf(bob) ).toString())
 
       await logUsers(userList)
 
@@ -256,16 +258,16 @@ describe("TradeableFlow", function () {
       await app.repay(toWad(1000), {from:carol})
       await logUsers(userList)
 
-    //   // Alice doubles salary flow
-    //   console.log("Alice doubles salary flow")
-    //   await sf.cfa.updateFlow({
-    //     superToken:   token_directory["fUSDC"]["supertoken"].address, 
-    //     sender:       alice,
-    //     receiver:     user_directory.app,
-    //     flowRate:     parseInt(toWad(10000)/(30 * 24 * 60 * 60)).toString(),
-    //     userData:     web3.eth.abi.encodeParameter('uint256',1)
-    //   });
-    //   await logUsers(userList)
+      // Alice doubles salary flow
+      console.log("Alice doubles salary flow")
+      await sf.cfa.updateFlow({
+        superToken:   token_directory["fUSDC"]["supertoken"].address, 
+        sender:       alice,
+        receiver:     user_directory.app,
+        flowRate:     parseInt(toWad(10000)/(30 * 24 * 60 * 60)).toString(),
+        userData:     web3.eth.abi.encodeParameter('uint256',1)
+      });
+      await logUsers(userList)
 
       // Alice cancels flow to 
       console.log("Alice cancels salary flow")

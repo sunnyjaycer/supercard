@@ -37,10 +37,18 @@ module.exports = {
     timeout: 500000000
   },
   networks: {
-    rinkeby: {
-      url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_KEY,
+    // rinkeby: {
+    //   url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_KEY,
+    //   accounts: [process.env.PRIVATE_KEY],
+    // },
+    goerli: {
+      url: "https://goerli.infura.io/v3/" + process.env.INFURA_KEY,
       accounts: [process.env.PRIVATE_KEY],
-    }
+    },
+    // kovan: {
+    //   url: "https://kovan.infura.io/v3/" + process.env.INFURA_KEY,
+    //   accounts: [process.env.PRIVATE_KEY],
+    // },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

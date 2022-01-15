@@ -5,11 +5,11 @@ module.exports = [
     "SuperCard",
     "SC",
     "ipfs://",                                            // Base URI
-    "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8",         // payment token
-    "0xbe49ac1EadAc65dccf204D4Df81d650B50122aB2",         // lending token
+    "0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a",         // payment token
+    "0xc94dd466416A7dFE166aB2cF916D3875C049EBB7",         // lending token
     130000,                                               // Interest rate (130,000 = 30%)
     toWad(2000).toString(),                                          // Max LOC
-    "0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6",         // SF host
-    "0xF4C5310E51F6079F601a5fb7120bC72a70b96e2A",         // SF CFA
+    "0x22ff293e14F1EC3A09B137e9e06084AFd63adDF9",         // SF host
+    "0xEd6BcbF6907D4feEEe8a8875543249bEa9D308E8",         // SF CFA
     ""
 ];
