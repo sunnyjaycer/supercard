@@ -12,6 +12,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     width: '100%',
   },
+
   card: {
     textAlign: 'left',
     borderRadius: '18px',
@@ -84,7 +85,6 @@ const ControlCenter = ({ account, contract }) => {
         setLocOpen(true);
       };
 
-
       if (window.ethereum) {
         contract.on('LOCOpened', onNewLocOpened);
       }
@@ -94,7 +94,7 @@ const ControlCenter = ({ account, contract }) => {
           contract.off('LOCOpened', onNewLocOpened);
         }
       };
-    };
+    }
   }, [account, contract]);
 
   return (
