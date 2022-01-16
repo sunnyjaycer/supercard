@@ -52,6 +52,7 @@ const ControlCenter = ({ account, contract }) => {
   useEffect(() => {
     const checkUserLocStatus = async () => {
       const txn = await contract.getLocStatusFromEmployee(account);
+      // await txn.wait();
       console.log(txn);
       setLocOpen(txn);
     };
