@@ -44,14 +44,14 @@ const ControlCenter = ({ account, contract }) => {
   useEffect(() => {
     const checkUserLocStatus = async () => {
       const txn = await contract.getLocStatusFromEmployee(account);
-      await txn.wait();
+      // await txn.wait();
       console.log(txn);
       setLocOpen(txn);
     };
-    if (account) {
+    if (account && contract) {
       checkUserLocStatus();
     }
-  }, [account]);
+  }, [account, contract]);
 
   //Opening a line of credit by calling openLOC from contract
   const openLOC = async () => {
