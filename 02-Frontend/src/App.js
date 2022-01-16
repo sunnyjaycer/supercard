@@ -7,6 +7,7 @@ import { Card, Button, Typography } from '@material-ui/core';
 import { ethers } from 'ethers';
 import Main from './components/Main';
 import AppBarHeader from './components/AppBarHeader';
+import { tradeableFlowAbi } from './abis/tradeableFlowAbi';
 // import SuperfluidSDK from '@superfluid-finance/js-sdk';
 // import Web3Provider from '@ethersproject/providers';
 // import Web3 from 'web3';
@@ -18,6 +19,8 @@ function App() {
   const [currentAccount, setCurrentAccount] = useState(null); //User's wallet address
   const [network, setNetwork] = useState(''); //Rinkeby for now
   const [flowData, setFlowData] = useState({});
+  const [contract, setContract] = useState(null);
+  const CONTRACT_ADDRESS = '0x60EF4c93CE8c6e0182BC1c83A7CE47053c5af6c6';
 
   //Checking to make sure wallet is connected
   const checkWalletConnection = async () => {
@@ -84,6 +87,21 @@ function App() {
     checkNetwork();
     checkWalletConnection();
   }, []);
+
+  //Setting the contract for the user
+  useEffect(() => {
+    if (currentAccount) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        tradeableFlowAbi,
+        signer
+      );
+      setContract(contract);
+      console.log('Contract is set!');
+    }
+  }, [currentAccount]);
 
   useEffect(() => {
     const queryFlowData = async () => {
@@ -175,7 +193,7 @@ function App() {
     return (
       <div className='App'>
         <AppBarHeader account={currentAccount} />
-        <Main />
+        <Main account={currentAccount} contract={contract} />
       </div>
     );
   }

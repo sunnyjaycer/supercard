@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Grid, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { ethers } from 'ethers';
-import { tradeableFlowAbi } from '../../abis/tradeableFlowAbi.js';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,14 +26,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ControlCenter = () => {
-  const [locOpen, setLocOpen] = useState(true); //whether or not a LOC is open
+const ControlCenter = ({ account, contract }) => {
+  const [locOpen, setLocOpen] = useState(false); //whether or not a LOC is open yet -- we will get this from the contract
   const [borrowAmount, setBorrowAmount] = useState(null); //borrow amount specific by user
   const [repayAmount, setRepayAmount] = useState(null); //repay amount specific by user
 
   const locAmount = 2000; //value of LOC
   const classes = useStyles();
-  const CONTRACT_ADDRESS = '0x60EF4c93CE8c6e0182BC1c83A7CE47053c5af6c6';
 
   //Just demonstrating how card will change when state is changed
   const locButtonClicked = () => {
@@ -43,16 +40,21 @@ const ControlCenter = () => {
     console.log(locOpen);
   };
 
+  //Getting whether or not a user has a Loc open
+  useEffect(() => {
+    const checkUserLocStatus = async () => {
+      const txn = await contract.getLocStatusFromEmployee(account);
+      await txn.wait();
+      console.log(txn);
+      setLocOpen(txn);
+    };
+    if (account) {
+      checkUserLocStatus();
+    }
+  }, [account]);
+
   //Opening a line of credit by calling openLOC from contract
   const openLOC = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      CONTRACT_ADDRESS,
-      tradeableFlowAbi,
-      signer
-    );
-
     const txn = await contract.openLoc();
     await txn.wait();
     console.log(txn);

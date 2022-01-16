@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Main = ({ account }) => {
+const Main = ({ account, contract }) => {
   const classes = useStyles();
   const theme = useTheme();
 
@@ -61,7 +61,7 @@ const Main = ({ account }) => {
             <YourSupercards />
           </Grid>
           <Grid item md={6} xs={12} style={{ display: 'flex' }}>
-            <ControlCenter />
+            <ControlCenter account={account} contract={contract} />
           </Grid>
         </Grid>
         <Grid
