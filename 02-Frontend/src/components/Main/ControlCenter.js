@@ -69,6 +69,30 @@ const ControlCenter = ({ account, contract }) => {
     console.log(`See transaction: https://goerli.etherscan.io/tx/${txn.hash}`);
   };
 
+  const closeLOC = () => {
+    //Calling the close LOC function
+
+    //Reloading the window
+    window.location.reload(false);
+  };
+
+  //Listening for new Loc opened event so don't need to refresh screen
+  useEffect(() => {
+    const onNewLocOpened = (employee) => {
+      setLocOpen(true);
+    };
+
+    if (window.ethereum) {
+      contract.on('LOCOpened', onNewLocOpened);
+    }
+
+    return () => {
+      if (contract) {
+        contract.off('LOCOpened', onNewLocOpened);
+      }
+    };
+  }, [account, contract]);
+
   return (
     <Card className={classes.root}>
       {locOpen && (
@@ -93,7 +117,7 @@ const ControlCenter = ({ account, contract }) => {
       )}
       {locOpen && (
         <Card className={classes.locButton}>
-          <Button onClick={locButtonClicked}>
+          <Button onClick={closeLOC}>
             <Typography variant='body1'>Close Credit Line</Typography>
           </Button>
         </Card>
