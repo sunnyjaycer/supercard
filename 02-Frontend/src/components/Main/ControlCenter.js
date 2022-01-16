@@ -70,7 +70,7 @@ const ControlCenter = ({ account, contract }) => {
     console.log(`See transaction: https://goerli.etherscan.io/tx/${txn.hash}`);
   };
 
-  const closeLOCK = async () => {
+  const closeLOC = async () => {
     //Calling the close LOC function
     const txn = await contract.closeLoc();
     await txn.wait();
