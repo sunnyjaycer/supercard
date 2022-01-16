@@ -19,7 +19,14 @@ const CardImage = () => {
   const classes = useStyles();
 
   return (
-    <Card className={classes.root}>
+    <Card
+      className={classes.root}
+      onClick={() =>
+        window.open(
+          'https://testnets.opensea.io/assets/goerli/0x60ef4c93ce8c6e0182bc1c83a7ce47053c5af6c6/1'
+        )
+      }
+    >
       {' '}
       {/* want to take away border for this card*/}
       <img

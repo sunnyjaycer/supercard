@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Button, Grid, TextField } from '@material-ui/core';
+import {
+  Card,
+  Typography,
+  Button,
+  Grid,
+  TextField,
+  IconButton,
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import LaunchIcon from '@material-ui/icons/Launch';
 import { BigNumber } from 'ethers';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     textAlign: 'center',
-    padding: '20px',
+    // padding: '20px',
     borderRadius: '15px',
     display: 'flex',
     // justifyContent: 'space-between',
@@ -21,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     background: '#7D7D7D',
     color: '#FFFFFF',
   },
-  locButton: {
+  button: {
     textAlign: 'center',
     display: 'flex',
     margin: 'auto',
@@ -61,7 +69,7 @@ const ControlCenter = ({ account, contract }) => {
   //Getting the amount of credit a user has (if they have an LOC open)
   useEffect(() => {
     const getUserLocAmountAndBorrowed = async () => {
-      console.log("HENRYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
+      console.log('HENRYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
       let txn = await contract.getAvailableCreditFromEmployee(account);
       // await txn.wait();
       console.log(txn);
@@ -77,8 +85,6 @@ const ControlCenter = ({ account, contract }) => {
       getUserLocAmountAndBorrowed();
     }
   }, [locOpen, account, contract]);
-
-  
 
   //Opening a line of credit by calling openLOC from contract
   const openLOC = async () => {
@@ -118,40 +124,55 @@ const ControlCenter = ({ account, contract }) => {
   //When a user borrows money
   const borrow = async () => {
     console.log('Borrow amount is ' + borrowAmount);
-    const txn = await contract.borrow( borrowAmount.toLocaleString('fullwide', {useGrouping:false}) );
+    const txn = await contract.borrow(
+      borrowAmount.toLocaleString('fullwide', { useGrouping: false })
+    );
     await txn.wait();
     console.log(txn);
   };
 
   const repay = async () => {
     console.log('Repay amount is ' + repayAmount);
-    const txn = await contract.repay( repayAmount.toLocaleString('fullwide', {useGrouping:false}) );
+    const txn = await contract.repay(
+      repayAmount.toLocaleString('fullwide', { useGrouping: false })
+    );
     await txn.wait();
     console.log(txn);
   };
 
   return (
     <Card className={classes.root}>
-
+      <IconButton
+        className={classes.button}
+        onClick={() =>
+          window.open(
+            'https://goerli.etherscan.io/address/0x60ef4c93ce8c6e0182bc1c83a7ce47053c5af6c6'
+          )
+        }
+      >
+        <LaunchIcon />
+      </IconButton>
+      {/* <Typography variant='body2'>See Contract</Typography> */}
       {locAmount && availableCredit && (
         <>
           <Typography variant='body1' style={{ paddingTop: '5vh' }}>
-            Borrowed: <strong>{(locAmount - availableCredit)/(10**18)} USDC</strong>
+            Borrowed:{' '}
+            <strong>{(locAmount - availableCredit) / 10 ** 18} USDC</strong>
           </Typography>
           <Typography variant='body1'>
-            Available Credit: <strong>{(availableCredit)/(10**18)} USDC</strong>
+            Available Credit: <strong>{availableCredit / 10 ** 18} USDC</strong>
           </Typography>
         </>
       )}
       {locOpen && (
-        <Card className={classes.locButton}>
+        <Card className={classes.button}>
           <Button onClick={closeLOC}>
             <Typography variant='body1'>Close Credit Line</Typography>
           </Button>
         </Card>
       )}
       {!locOpen && (
-        <Card className={classes.locButton}>
+        <Card className={classes.button}>
           <Button onClick={openLOC}>
             <Typography variant='body1'>Open Credit Line</Typography>
           </Button>
@@ -170,7 +191,7 @@ const ControlCenter = ({ account, contract }) => {
               label='Borrow Amount'
               helperText='Borrow'
               onChange={(e) => {
-                setBorrowAmount(e.target.value*(10**18));
+                setBorrowAmount(e.target.value * 10 ** 18);
               }}
             />
           </Grid>
@@ -186,7 +207,7 @@ const ControlCenter = ({ account, contract }) => {
               label='Repay Amount'
               helperText='Repay'
               onChange={(e) => {
-                setRepayAmount(e.target.value*(10**18));
+                setRepayAmount(e.target.value * 10 ** 18);
               }}
             />
           </Grid>
