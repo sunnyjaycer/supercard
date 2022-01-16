@@ -40,18 +40,25 @@ const ControlCenter = ({ account, contract }) => {
     console.log(locOpen);
   };
 
+  //   //Making sure account and contract are coming in
+  //   useEffect(() => {
+  //     console.log('Account is');
+  //     console.log(account);
+  //     console.log('Contract is');
+  //     console.log(contract);
+  //   }, [account, contract]);
+
   //Getting whether or not a user has a Loc open
   useEffect(() => {
     const checkUserLocStatus = async () => {
       const txn = await contract.getLocStatusFromEmployee(account);
-      await txn.wait();
       console.log(txn);
       setLocOpen(txn);
     };
-    if (account) {
+    if (account && contract) {
       checkUserLocStatus();
     }
-  }, [account]);
+  }, [account, contract]);
 
   //Opening a line of credit by calling openLOC from contract
   const openLOC = async () => {
