@@ -12,24 +12,49 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     width: '100%',
   },
+  cardTextLeft: {
+    display: 'block',
+  },
+  cardTextRight: {
+    display: 'block',
+    textAlign: 'right',
+    float: 'none',
+  },
 }));
 
 const BalanceCard = () => {
   const classes = useStyles();
 
+  //Will pass this down as props later
+  const monthlyInflow = '5000';
+  const monthlyOutflow = '1000';
+
   return (
     <Card className={classes.root}>
       <Grid container direction='column'>
         <Grid item xs={12}>
-          <Typography variant='h5'>Balance</Typography>
-          <Typography variant='h3'>
-            <strong>$5000</strong>
+          <Typography variant='h5' className={classes.cardTextLeft}>
+            Balance
           </Typography>
-          <Typography variant='body1'>+0.48 per minute</Typography>
           <br />
-          <Typography variant='body2'>
+          <Typography variant='h3' className={classes.cardTextLeft}>
+            <strong>$5000 USDC</strong>
+          </Typography>
+          <br />
+          <Typography variant='body2' className={classes.cardTextLeft}>
             This is the net amount streaming into your account
           </Typography>
+          <br />
+          <Typography
+            variant='subtitle1'
+            className={classes.cardTextRight}
+            style={{ color: 'green' }}
+          >{`+$${monthlyInflow} per month`}</Typography>
+          <Typography
+            variant='subtitle1'
+            className={classes.cardTextRight}
+            style={{ color: 'red' }}
+          >{`-$${monthlyOutflow} per month`}</Typography>
         </Grid>
       </Grid>
     </Card>
