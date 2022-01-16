@@ -71,6 +71,7 @@ const ControlCenter = ({ account, contract }) => {
 
   const closeLOC = () => {
     //Calling the close LOC function
+    const txn = await contract.closeLoc();
 
     //Reloading the window
     window.location.reload(false);
