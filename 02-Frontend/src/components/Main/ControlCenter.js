@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Grid, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { BigNumber } from 'ethers';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,18 +61,24 @@ const ControlCenter = ({ account, contract }) => {
   //Getting the amount of credit a user has (if they have an LOC open)
   useEffect(() => {
     const getUserLocAmountAndBorrowed = async () => {
+      console.log("HENRYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
       let txn = await contract.getAvailableCreditFromEmployee(account);
+      // await txn.wait();
       console.log(txn);
-      setAvailableCredit(txn);
+      setAvailableCredit(txn.toString());
       txn = await contract.getLocAmount();
-      setLocAmount(txn);
+      // await txn.wait();
+      console.log(txn);
+      setLocAmount(txn.toString());
       console.log('Available credit is ' + availableCredit);
       console.log('LOC Amount is ' + locAmount);
     };
-    if (locOpen) {
+    if (account && contract) {
       getUserLocAmountAndBorrowed();
     }
   }, [locOpen, account, contract]);
+
+  
 
   //Opening a line of credit by calling openLOC from contract
   const openLOC = async () => {
@@ -111,35 +118,28 @@ const ControlCenter = ({ account, contract }) => {
   //When a user borrows money
   const borrow = async () => {
     console.log('Borrow amount is ' + borrowAmount);
-    const txn = await contract.borrow(borrowAmount);
+    const txn = await contract.borrow( borrowAmount.toLocaleString('fullwide', {useGrouping:false}) );
+    await txn.wait();
     console.log(txn);
   };
 
   const repay = async () => {
     console.log('Repay amount is ' + repayAmount);
-    const txn = await contract.repay(repayAmount);
+    const txn = await contract.repay( repayAmount.toLocaleString('fullwide', {useGrouping:false}) );
+    await txn.wait();
     console.log(txn);
   };
 
   return (
     <Card className={classes.root}>
-      {locOpen && (
+
+      {locAmount && availableCredit && (
         <>
           <Typography variant='body1' style={{ paddingTop: '5vh' }}>
-            Borrowed: <strong>{locAmount}</strong>
+            Borrowed: <strong>{(locAmount - availableCredit)/(10**18)} USDC</strong>
           </Typography>
           <Typography variant='body1'>
-            Available Credit: <strong>0</strong>
-          </Typography>
-        </>
-      )}
-      {!locOpen && (
-        <>
-          <Typography variant='body1' style={{ paddingTop: '5vh' }}>
-            Borrowed: <strong>{locAmount - availableCredit}</strong>
-          </Typography>
-          <Typography variant='body1'>
-            Available Credit: <strong>{availableCredit}</strong>
+            Available Credit: <strong>{(availableCredit)/(10**18)} USDC</strong>
           </Typography>
         </>
       )}
@@ -170,7 +170,7 @@ const ControlCenter = ({ account, contract }) => {
               label='Borrow Amount'
               helperText='Borrow'
               onChange={(e) => {
-                setBorrowAmount(e.target.value);
+                setBorrowAmount(e.target.value*(10**18));
               }}
             />
           </Grid>
@@ -186,7 +186,7 @@ const ControlCenter = ({ account, contract }) => {
               label='Repay Amount'
               helperText='Repay'
               onChange={(e) => {
-                setRepayAmount(e.target.value);
+                setRepayAmount(e.target.value*(10**18));
               }}
             />
           </Grid>
