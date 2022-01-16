@@ -70,12 +70,12 @@ const ControlCenter = ({ account, contract }) => {
     console.log(`See transaction: https://goerli.etherscan.io/tx/${txn.hash}`);
   };
 
-  const closeLOC = () => {
+  const closeLOCK = async () => {
     //Calling the close LOC function
     const txn = await contract.closeLoc();
-
-    //Reloading the window
-    window.location.reload(false);
+    await txn.wait();
+    console.log(txn);
+    window.location.reload(false); //Reloading the window
   };
 
   //Listening for new Loc opened event so don't need to refresh screen
