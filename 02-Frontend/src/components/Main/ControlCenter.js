@@ -79,18 +79,21 @@ const ControlCenter = ({ account, contract }) => {
 
   //Listening for new Loc opened event so don't need to refresh screen
   useEffect(() => {
-    const onNewLocOpened = (employee) => {
-      setLocOpen(true);
-    };
+    if (account && contract) {
+      const onNewLocOpened = (employee) => {
+        setLocOpen(true);
+      };
 
-    if (window.ethereum) {
-      contract.on('LOCOpened', onNewLocOpened);
-    }
 
-    return () => {
-      if (contract) {
-        contract.off('LOCOpened', onNewLocOpened);
+      if (window.ethereum) {
+        contract.on('LOCOpened', onNewLocOpened);
       }
+
+      return () => {
+        if (contract) {
+          contract.off('LOCOpened', onNewLocOpened);
+        }
+      };
     };
   }, [account, contract]);
 
