@@ -16,17 +16,23 @@ import { createMuiTheme } from '@material-ui/core/styles';
 //   },
 // });
 
-const rootElement = document.getElementById('root');
+// const rootElement = document.getElementById('root');
+// ReactDOM.render(
+//   <BrowserRouter>
+//     <Routes>
+//       <Route path='/' element={<App />} />
+//       <Route path='docs' element={<Docs />} />
+//       <Route path='community' element={<Community />} />
+//     </Routes>
+//   </BrowserRouter>,
+//   rootElement
+// );
+
 ReactDOM.render(
-  <BrowserRouter>
-    <AppBarHeader />
-    <Routes>
-      <Route path='/' element={<App />} />
-      <Route path='docs' element={<Docs />} />
-      <Route path='community' element={<Community />} />
-    </Routes>
-  </BrowserRouter>,
-  rootElement
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Main = () => {
+const Main = ({ account }) => {
   const classes = useStyles();
   const theme = useTheme();
 

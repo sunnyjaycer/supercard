@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button, Grid, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { ethers } from 'ethers';
+import { tradeableFlowAbi } from '../../abis/tradeableFlowAbi.js';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,11 +35,28 @@ const ControlCenter = () => {
 
   const locAmount = 2000; //value of LOC
   const classes = useStyles();
+  const CONTRACT_ADDRESS = '0x60EF4c93CE8c6e0182BC1c83A7CE47053c5af6c6';
 
   //Just demonstrating how card will change when state is changed
   const locButtonClicked = () => {
     setLocOpen(!locOpen);
     console.log(locOpen);
+  };
+
+  //Opening a line of credit by calling openLOC from contract
+  const openLOC = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(
+      CONTRACT_ADDRESS,
+      tradeableFlowAbi,
+      signer
+    );
+
+    const txn = await contract.openLoc();
+    await txn.wait();
+    console.log(txn);
+    console.log(`See transaction: https://goerli.etherscan.io/tx/${txn.hash}`);
   };
 
   return (
@@ -71,7 +90,7 @@ const ControlCenter = () => {
       )}
       {!locOpen && (
         <Card className={classes.locButton}>
-          <Button onClick={locButtonClicked}>
+          <Button onClick={openLOC}>
             <Typography variant='body1'>Open Credit Line</Typography>
           </Button>
         </Card>

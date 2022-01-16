@@ -1,60 +1,122 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import './App.css';
-// import Web3 from 'web3';
 import axios from 'axios';
+import { makeStyles } from '@material-ui/core/styles';
+import { Card, Button, Typography } from '@material-ui/core';
+import { ethers } from 'ethers';
+import Main from './components/Main';
+import AppBarHeader from './components/AppBarHeader';
 // import SuperfluidSDK from '@superfluid-finance/js-sdk';
 // import Web3Provider from '@ethersproject/providers';
-import { createMuiTheme, makeStyles } from '@material-ui/core/styles';
-
-import AppBarHeader from './components/AppBarHeader';
-import Main from './components/Main';
-import Docs from './components/Docs';
-import Community from './components/Community';
+// import Web3 from 'web3';
 
 const useStyles = makeStyles((theme) => ({}));
 
 function App() {
   //Setting initial state vars
-  const [account, setAccount] = useState(''); //User's wallet address
+  const [currentAccount, setCurrentAccount] = useState(null); //User's wallet address
   const [network, setNetwork] = useState(''); //Rinkeby for now
-  const [sf, setSf] = useState(null); //Superfluid SDK object
-  const [sfUser, setSfUser] = useState(null); //Specific SF user
-  const [notConnected, setNotConnected] = useState(false); //If user has connected wallet yet
-  const [flowQuery, setFlowQuery] = useState({}); //Querying the income stream
-  const superAppAddress = '0x45DC036073F12433BfC13380DD70a8a6c4B2d32f';
+  const [flowData, setFlowData] = useState({});
 
-  //Loading initial data
-  useEffect(() => {
-    //Logic here for eth account and loading superfluid data -- joel u can help me lol
-    const loadData = async () => {
-      setAccount('0xcF4B5f6CCD39a2b5555dDd9e23F3d0b11843086e');
-    };
-    loadData();
-  }, []);
+  //Checking to make sure wallet is connected
+  const checkWalletConnection = async () => {
+    const { ethereum } = window;
 
-  //Making sure we're conncted to Rinkeby testnet
+    if (!ethereum) {
+      console.log('Make sure you have metamask!');
+      return;
+    } else {
+      console.log('We have the ethereum object', ethereum);
+    }
+
+    const accounts = await ethereum.request({ method: 'eth_accounts' });
+    let chainId = await ethereum.request({ method: 'eth_chainId' });
+    console.log('Connected to chain ' + chainId);
+
+    //Making sure only Rinkeby test net accounts are connected
+    const goerliChainId = '0x5';
+    if (chainId !== goerliChainId) {
+      alert('Please connect to the Goerli Test Network!');
+    }
+
+    if (accounts.length !== 0) {
+      const account = accounts[0];
+      console.log('Found an authorized account:', account);
+      setCurrentAccount(account);
+    } else {
+      console.log('No authorized account found');
+      setCurrentAccount(null);
+    }
+  };
+
+  //Connecting wallet
+  const connectWalletAction = async () => {
+    try {
+      const { ethereum } = window;
+      if (!ethereum) {
+        alert('Get MetaMask!');
+        return;
+      }
+      const accounts = await ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      console.log('Connected', accounts[0]);
+      setCurrentAccount(accounts[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //Making sure we're conncted to Goerli testnet
   const checkNetwork = async () => {
     try {
-      if (window.ethereum.networkVersion !== '4') {
-        alert('Please connect to Rinkeby!');
+      if (window.ethereum.networkVersion !== '5') {
+        alert('Please connect to Goerli!');
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const queryFlowData = async () => {
-    const queryAddress =
-      'https://thegraph.com/hosted-service/subgraph/superfluid-finance/protocol-v1-rinkeby';
+  //Check wallet when page loads
+  useEffect(() => {
+    checkNetwork();
+    checkWalletConnection();
+  }, []);
 
-    const query = `{
-      account(id: "${account.toLowerCase()}") {
-          flowsOwned {
+  useEffect(() => {
+    const queryFlowData = async () => {
+      const queryAddress =
+        'https://api.thegraph.com/subgraphs/name/superfluid-finance/superfluid-goerli';
+      const flowAccount = '0x60ef4c93ce8c6e0182bc1c83a7ce47053c5af6c6';
+
+      const query = `{
+        account(id: "${flowAccount.toLowerCase()}") {
+            flowsOwned {
+                lastUpdate
+                flowRate
+                sum
+                recipient {
+                  id
+                }
+                token { 
+                    id
+                    symbol
+                }
+                events {
+                  flowRate
+                  sum
+                  transaction {
+                    timestamp
+                  }
+                }
+            }
+            flowsReceived {
               lastUpdate
               flowRate
               sum
-              recipient {
+              owner {
                 id
               }
               token { 
@@ -68,38 +130,55 @@ function App() {
                   timestamp
                 }
               }
-          }
-          flowsReceived {
-            lastUpdate
-            flowRate
-            sum
-            owner {
-              id
             }
-            token { 
-                id
-                symbol
-            }
-            events {
-              flowRate
-              sum
-              transaction {
-                timestamp
-              }
-            }
-          }
-      }
-    }`;
+        }
+      }`;
 
-    const res = await axios.get(queryAddress, { query });
-    setFlowQuery(res.data);
-  };
+      const res = await axios.post(queryAddress, { query });
+      setFlowData(res.data.data.account);
+      // console.log('Our flow data is: ');
+      // console.log(res.data.data.account);
+      // console.log(res);
+    };
+    if (currentAccount) {
+      queryFlowData();
+    }
+  }, [currentAccount]);
 
-  return (
-    <div className='App'>
-      <Main />
-    </div>
-  );
+  if (!currentAccount) {
+    return (
+      //connect wallet screen
+      <body
+        style={{
+          backgroundImage: 'linear-gradient(to right, #B2FFA3,#FFAAAA,#C2AAFF)',
+          height: '100vh',
+          minHeight: '100vh',
+          padding: '35vw',
+        }}
+      >
+        <div>
+          <Card
+            style={{
+              textAlign: 'center',
+              padding: '10px',
+              borderRadius: '18px',
+            }}
+          >
+            <Button onClick={connectWalletAction}>
+              <Typography variant='h5'>Connect Wallet</Typography>
+            </Button>
+          </Card>
+        </div>
+      </body>
+    );
+  } else {
+    return (
+      <div className='App'>
+        <AppBarHeader account={currentAccount} />
+        <Main />
+      </div>
+    );
+  }
 }
 
 export default App;

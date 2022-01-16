@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AppBarHeader = () => {
+const AppBarHeader = ({ account }) => {
   const classes = useStyles();
 
   return (
@@ -85,7 +85,7 @@ const AppBarHeader = () => {
             }}
             className={classes.showMenuButtons}
           >
-            <Link to='/' className={classes.buttons}>
+            {/* <Link to='/' className={classes.buttons}>
               <Button>Home</Button>
             </Link>
             <Link to='/docs' className={classes.buttons}>
@@ -93,7 +93,10 @@ const AppBarHeader = () => {
             </Link>
             <Link to='/community' className={classes.buttons}>
               <Button>Community</Button>
-            </Link>
+            </Link> */}
+            <Button>Home</Button>
+            <Button>Docs</Button>
+            <Button>Community</Button>
           </ButtonGroup>
 
           <Card>
@@ -101,7 +104,11 @@ const AppBarHeader = () => {
               <Icon>
                 <img className={classes.imageIcon} src={WalletIcon} />
               </Icon>
-              &nbsp; 0x37363063...18875
+              &nbsp;{' '}
+              {`${account.slice(0, 5)}...${account.slice(
+                account.length - 4,
+                account.length
+              )}`}
               <Icon>
                 <KeyboardArrowDownIcon />
               </Icon>
