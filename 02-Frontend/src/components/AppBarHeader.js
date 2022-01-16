@@ -86,7 +86,7 @@ const AppBarHeader = () => {
             className={classes.showMenuButtons}
           >
             <Link to='/' className={classes.buttons}>
-              <Button>Main Screen</Button>
+              <Button>Home</Button>
             </Link>
             <Link to='/docs' className={classes.buttons}>
               <Button>Docs</Button>

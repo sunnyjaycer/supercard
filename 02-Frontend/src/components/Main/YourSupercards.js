@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Grid } from '@material-ui/core';
+import { Card, Typography, Grid, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
@@ -33,6 +33,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'inline-block',
     textAlign: 'right',
     float: 'right',
+  },
+  mintButton: {
+    textAlign: 'center',
+    display: 'flex',
+    margin: 'auto',
   },
 }));
 
@@ -86,7 +91,7 @@ const YourSupercards = () => {
                 </Typography>
               </Card>
             )}
-            {index > 0 && (
+            {/* {index > 0 && (
               <Card className={classes.card}>
                 <Typography variant='body1' className={classes.cardTextLeft}>
                   <strong>${item.balance}</strong>
@@ -102,9 +107,12 @@ const YourSupercards = () => {
                   {item.employer}
                 </Typography>
               </Card>
-            )}
+            )} */}
           </Grid>
         ))}
+        <Card className={classes.mintButton}>
+          <Button>Mint new Supercard</Button>
+        </Card>
       </Grid>
     </Card>
   );

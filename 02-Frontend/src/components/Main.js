@@ -7,8 +7,9 @@ import { useTheme } from '@material-ui/core/styles';
 import BalanceCard from './Main/BalanceCard';
 import CardImage from './Main/CardImage';
 import YourSupercards from './Main/YourSupercards';
-import NetFlowCard from './Main/NetFlowCard';
+// import NetFlowCard from './Main/NetFlowCard';
 import ActivityCard from './Main/ActivityCard';
+import ControlCenter from './Main/ControlCenter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -60,7 +61,7 @@ const Main = () => {
             <YourSupercards />
           </Grid>
           <Grid item md={6} xs={12} style={{ display: 'flex' }}>
-            <NetFlowCard />
+            <ControlCenter />
           </Grid>
         </Grid>
         <Grid
