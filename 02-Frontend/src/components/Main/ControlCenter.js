@@ -29,17 +29,13 @@ const useStyles = makeStyles((theme) => ({
 
 const ControlCenter = ({ account, contract }) => {
   const [locOpen, setLocOpen] = useState(false); //whether or not a LOC is open yet -- we will get this from the contract
-  const [borrowAmount, setBorrowAmount] = useState(null); //borrow amount specific by user
-  const [repayAmount, setRepayAmount] = useState(null); //repay amount specific by user
+  const [locAmount, setLocAmount] = useState(null); //value of LOC
+  const [availableCredit, setAvailableCredit] = useState(null); //available credit
 
-  const locAmount = 2000; //value of LOC
+  const [borrowAmount, setBorrowAmount] = useState(null); //borrow amount specified by user
+  const [repayAmount, setRepayAmount] = useState(null); //repay amount specified by the user
+
   const classes = useStyles();
-
-  //Just demonstrating how card will change when state is changed
-  const locButtonClicked = () => {
-    setLocOpen(!locOpen);
-    console.log(locOpen);
-  };
 
   //   //Making sure account and contract are coming in
   //   useEffect(() => {
@@ -53,7 +49,6 @@ const ControlCenter = ({ account, contract }) => {
   useEffect(() => {
     const checkUserLocStatus = async () => {
       const txn = await contract.getLocStatusFromEmployee(account);
-      // await txn.wait();
       console.log(txn);
       setLocOpen(txn);
     };
@@ -61,6 +56,22 @@ const ControlCenter = ({ account, contract }) => {
       checkUserLocStatus();
     }
   }, [account, contract]);
+
+  //Getting the amount of credit a user has (if they have an LOC open)
+  useEffect(() => {
+    const getUserLocAmountAndBorrowed = async () => {
+      let txn = await contract.getAvailableCreditFromEmployee(account);
+      console.log(txn);
+      setAvailableCredit(txn);
+      txn = await contract.getLocAmount();
+      setLocAmount(txn);
+      console.log('Available credit is ' + availableCredit);
+      console.log('LOC Amount is ' + locAmount);
+    };
+    if (locOpen) {
+      getUserLocAmountAndBorrowed();
+    }
+  }, [locOpen, account, contract]);
 
   //Opening a line of credit by calling openLOC from contract
   const openLOC = async () => {
@@ -97,6 +108,19 @@ const ControlCenter = ({ account, contract }) => {
     }
   }, [account, contract]);
 
+  //When a user borrows money
+  const borrow = async () => {
+    console.log('Borrow amount is ' + borrowAmount);
+    const txn = await contract.borrow(borrowAmount);
+    console.log(txn);
+  };
+
+  const repay = async () => {
+    console.log('Repay amount is ' + repayAmount);
+    const txn = await contract.repay(repayAmount);
+    console.log(txn);
+  };
+
   return (
     <Card className={classes.root}>
       {locOpen && (
@@ -112,10 +136,10 @@ const ControlCenter = ({ account, contract }) => {
       {!locOpen && (
         <>
           <Typography variant='body1' style={{ paddingTop: '5vh' }}>
-            Borrowed: <strong>0</strong>
+            Borrowed: <strong>{locAmount - availableCredit}</strong>
           </Typography>
           <Typography variant='body1'>
-            Available Credit: <strong>{2000}</strong>
+            Available Credit: <strong>{availableCredit}</strong>
           </Typography>
         </>
       )}
@@ -142,7 +166,6 @@ const ControlCenter = ({ account, contract }) => {
           style={{ paddingBottom: '5vh' }}
         >
           <Grid item md={6} xs={12}>
-            {' '}
             <TextField
               label='Borrow Amount'
               helperText='Borrow'
@@ -150,6 +173,12 @@ const ControlCenter = ({ account, contract }) => {
                 setBorrowAmount(e.target.value);
               }}
             />
+          </Grid>
+          <Grid item md={6} xs={12}>
+            <Card style={{ marginTop: '15px' }}>
+              {' '}
+              <Button onClick={borrow}>Borrow</Button>
+            </Card>
           </Grid>
           <Grid item md={6} xs={12}>
             {' '}
@@ -160,6 +189,12 @@ const ControlCenter = ({ account, contract }) => {
                 setRepayAmount(e.target.value);
               }}
             />
+          </Grid>
+          <Grid item md={6} xs={12}>
+            <Card style={{ marginTop: '15px' }}>
+              {' '}
+              <Button onClick={repay}>Repay</Button>
+            </Card>
           </Grid>
         </Grid>
       )}
