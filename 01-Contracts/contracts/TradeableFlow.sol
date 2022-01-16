@@ -221,10 +221,6 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
     /* Getters                                      */
     /********************************************** */
 
-    function getTokenIdFromEmployee(address employee) public view returns (uint256) {
-        return _scp.employees[employee].tokenId;
-    }
-
     function getInterestRate() external view returns (int96) {
         return _scp.interestRate;
     }
@@ -239,6 +235,22 @@ contract TradeableFlow is ERC721, ERC721URIStorage, RedirectAll {
 
     function getPaymentToken() external view returns (ISuperToken) {
         return _scp.paymentToken;
+    }
+
+    function getTokenIdFromEmployee(address employee) external view returns (uint256) {
+        return _scp.employees[employee].tokenId;
+    }
+
+    function getAvailableCreditFromEmployee(address employee) external view returns (uint256) {
+        return _scp.employees[employee].availableCredit;
+    }
+
+    function getLocStatusFromEmployee(address employee) external view returns (bool) {
+        return _scp.employees[employee].locOpen;
+    }
+
+    function getEmployerFromEmployee(address employee) external view returns (address) {
+        return _scp.employees[employee].employer;
     }
 
     /********************************************** */

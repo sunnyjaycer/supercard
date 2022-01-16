@@ -62,7 +62,7 @@ main().catch((error) => {
 // second latest DEPLOYED_CONTRACT_ADDRESS: 0x38E975A42e3DfEEa6cAA9672a6Fbb3C4bdbb97a3 
 // latest: 0x603c02f90299A49c009411419c392FE49a6B6096
 // npx hardhat verify --network rinkeby --constructor-args arguments.js 0x4358407B34ba88f6cEf4648Ff59690Ba5bE662d3
-// npx hardhat verify --network goerli --constructor-args arguments.js 0x90b067a68EcbBD8a24eA6d6d3efDB35213D8A3fA
+// npx hardhat verify --network goerli --constructor-args arguments.js 0x60EF4c93CE8c6e0182BC1c83A7CE47053c5af6c6
 // https://hardhat.org/tutorial/deploying-to-a-live-network.html
 
 // Testing Steps
